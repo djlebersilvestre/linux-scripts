@@ -19,7 +19,7 @@ fi
 should_run=y
 if [ "$silent_mode" != "-s" ]; then
   echo "This operation will delete all files and diretories named '$2' inside the base directory '$1'."
-  echo "Are you sure that you want to proceed? (y)es or (N)o?"
+  echo "Are you sure that you want to proceed? [y/N]"
   read should_run
 fi
 

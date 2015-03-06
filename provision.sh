@@ -2,6 +2,12 @@
 
 RETVAL=0
 
+ssd_step() {
+  scriptPath=${0%/*}
+  source $scriptPath/swap-ssd-optimization.sh all
+}
+
+
 is_copy_working() {
   if [ ! -d "$HOME/Copy" ] || [ ! -d "$HOME/Copy/ssh" ] || [ ! -d "$HOME/Copy/ssh/vpn" ]; then
     return 1
@@ -263,6 +269,9 @@ case "$1" in
   rvm)
     rvm_step
     ;;
+  ssd)
+    ssd_step
+    ;;
   virtualbox)
     virtualbox_step
     ;;
@@ -288,7 +297,7 @@ case "$1" in
     echo "Finished all steps!"
     ;;
   *)
-    echo "Usage: $0 {setup|first|git|packages|copy|ssh|rvm|virtualbox|vagrant}"
+    echo "Usage: $0 {setup|first|git|packages|copy|ssh|rvm|ssd|virtualbox|vagrant}"
     echo ""
     echo "Details"
     echo "  setup:      RECOMMENDED - triggers all: first > packages > git > copy > ssh > rvm > virtualbox > vagrant"
@@ -298,14 +307,15 @@ case "$1" in
     echo "  copy:       install and setup the Copy Cloud Storage"
     echo "  ssh:        configure default SSH keys (depends on Copy)"
     echo "  rvm:        install and set rvm to use ruby, also updates the vim bundles"
+    echo "  ssd:        applies SSD optimization - no swapping, logs in memory and no update on reading files"
     echo "  virtualbox: install VirtualBox (requires manual steps)"
     echo "  vagrant:    install vagrant"
     echo ""
     RETVAL=1
 esac
 
-#TODO: echo "vm.swappiness=1" >> /etc/sysctl.conf
-#TODO: SSD optimization - sudo swapoff -a
+#TODO: divide this script in multiple files (similar to SSD)
+#TODO: use set -e to control the flow on errors (similar to SSD
 
 exit $RETVAL
 

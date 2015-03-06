@@ -304,5 +304,7 @@ case "$1" in
     RETVAL=1
 esac
 
+#TODO: SSD optimization - sudo swapoff -a
+
 exit $RETVAL
 

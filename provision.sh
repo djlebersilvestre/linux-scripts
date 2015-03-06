@@ -304,6 +304,7 @@ case "$1" in
     RETVAL=1
 esac
 
+#TODO: echo "vm.swappiness=1" >> /etc/sysctl.conf
 #TODO: SSD optimization - sudo swapoff -a
 
 exit $RETVAL

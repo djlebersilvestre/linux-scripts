@@ -5,7 +5,7 @@ setup_sysctl() {
   if grep --quiet vm.swappiness=0 /etc/sysctl.conf; then
     echo No changes. Sysctl is already adjusted to keep swap at zero
   else
-    sudo bash -c "sudo echo '' >> /etc/sysctl.conf"
+    sudo bash -c "echo '' >> /etc/sysctl.conf"
     sudo bash -c "echo '# Forcing no swap to preserve the SSD storage' >> /etc/sysctl.conf"
     sudo bash -c "echo vm.swappiness=0 >> /etc/sysctl.conf"
 

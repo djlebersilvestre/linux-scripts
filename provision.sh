@@ -97,8 +97,8 @@ git_step() {
   git config --global diff.external /usr/local/bin/git-diff.sh
 
   echo "Configuring bash and vimrc"
-  git clone https://github.com/djlebersilvestre/vim ~/.vim
-  git clone https://github.com/djlebersilvestre/bash ~/.bash
+  git clone git@github.com:djlebersilvestre/vim.git ~/.vim
+  git clone git@github.com:djlebersilvestre/bash.git ~/.bash
   rm -f ~/.bashrc ~/.bash_profile ~/.profile ~/.vimrc
   ln -s ~/.bash/bashrc ~/.bashrc
   ln -s ~/.bash/bash_profile ~/.bash_profile
@@ -160,6 +160,7 @@ packages_step() {
   install_pkgs 'vim apache2-utils xbacklight curl screen htop pdfshuffler gimp google-chrome-stable netflix-desktop whois oracle-java8-installer docker.io'
   # standing by: powertop radiotray filezilla https://code.google.com/p/gitinspector/downloads/list
   # TODO: http://download.skype.com/linux/skype-ubuntu-precise_4.3.0.37-1_i386.deb
+  # TODO: http://remarkableapp.net/files/remarkable_1.25_all.deb
 
   # Dependencies for Netflix
   sudo apt-get --purge --reinstall --yes --force-yes install ttf-mscorefonts-installer

@@ -316,7 +316,7 @@ case "$1" in
 esac
 
 #TODO: divide this script in multiple files (similar to SSD)
-#TODO: use set -e to control the flow on errors (similar to SSD
+#TODO: use set -e to control the flow on errors (similar to SSD)
 
 exit $RETVAL
 

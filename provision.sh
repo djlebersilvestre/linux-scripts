@@ -1,12 +1,12 @@
 #!/bin/bash
 
+set -e
 RETVAL=0
 
-ssd_step() {
+if ! type -t update_pkgs | grep -i function > /dev/null; then
   scriptPath=${0%/*}
-  source $scriptPath/swap-ssd-optimization.sh all
-}
-
+  source $scriptPath/pkg-helper.sh
+fi
 
 is_copy_working() {
   if [ ! -d "$HOME/Copy" ] || [ ! -d "$HOME/Copy/ssh" ] || [ ! -d "$HOME/Copy/ssh/vpn" ]; then
@@ -21,30 +21,6 @@ check_copy() {
     echo "The Copy (cloud storage) is not configured or initialized. Aborting the process"
     exit 1
   fi
-}
-
-update_pkgs() {
-  force_update=$1
-
-  if [ "$force_update" = true ] || [ "$PROV_APT_UPDATED" != true ]; then
-    echo "Atualizando lista de pacotes"
-    sudo apt-get update
-    export PROV_APT_UPDATED=true
-  fi
-}
-
-install_pkgs() {
-  pkgs=$1
-
-  if [ -z "$pkgs" ]; then
-    echo "The packages must be passed as argument, separated by spaces to proceed with the installation"
-    exit 1
-  fi
-
-  update_pkgs
-
-  echo "Installing packages $pkgs"
-  sudo apt-get --yes --force-yes install $pkgs
 }
 
 first_step() {
@@ -119,32 +95,29 @@ ssh_step() {
 packages_step() {
   should_update_pkgs=false
 
-  if [ -e "/etc/apt/sources.list.d/pipelight-stable-trusty.list" ]; then
-    echo "Netflix repository already exists. Bypassing this install"
-  else
-    echo "Adding repository to install Netflix Desktop"
-    sudo apt-add-repository ppa:pipelight/stable
-    should_update_pkgs=true
+  source $scriptPath/netflix-desktop.sh
+  add_repo_netflix_desktop
+
+  source $scriptPath/google-chrome.sh
+  add_repo_google_chrome
+
+  source $scriptPath/oracle-java.sh
+  add_repo_oracle_java
+
+  source $scriptPath/samsung-tools.sh
+  add_repo_samsung_tools
+
+  if $should_update_pkgs; then
+    update_pkgs -f
   fi
 
-  if [ -e "/etc/apt/sources.list.d/google.list" ]; then
-    echo "Google Chrome repository already exists. Bypassing this install"
-  else
-    echo "Adding repository to install Google Chrome"
-    wget -q https://dl-ssl.google.com/linux/linux_signing_key.pub -O- | sudo apt-key add -
-    sudo bash -c "echo deb http://dl.google.com/linux/chrome/deb/ stable main >> /etc/apt/sources.list.d/google.list"
-    should_update_pkgs=true
-  fi
+  echo "Updating and installing all desired packages"
+  install_pkgs 'vim apache2-utils xbacklight curl screen htop pdfshuffler gimp google-chrome-stable netflix-desktop whois oracle-java8-installer docker.io samsung-tools powertop'
 
-  if [ -e "/etc/apt/sources.list.d/webupd8team-java-trusty.list" ]; then
-    echo "Oracle Java 8 repository already exists. Bypassing this install"
-  else
-    echo "Adding repository to install Oracle Java 8"
-    echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections
-    sudo add-apt-repository ppa:webupd8team/java
-    should_update_pkgs=true
-  fi
-
+  # standing by: radiotray filezilla https://code.google.com/p/gitinspector/downloads/list
+  # TODO: http://download.skype.com/linux/skype-ubuntu-precise_4.3.0.37-1_i386.deb
+  # TODO: http://remarkableapp.net/files/remarkable_1.25_all.deb
+  # TODO: create a custom script also download and install popcorntime
   if [ -e "/lib/x86_64-linux-gnu/libudev.so.0" ]; then
     echo "Lib already linked, bypassing PopcornTime fix"
   else
@@ -152,18 +125,8 @@ packages_step() {
     sudo ln -s /lib/x86_64-linux-gnu/libudev.so.1 /lib/x86_64-linux-gnu/libudev.so.0
   fi
 
-  if $should_update_pkgs; then
-    update_pkgs true
-  fi
-
-  echo "Updating and installing all desired packages"
-  install_pkgs 'vim apache2-utils xbacklight curl screen htop pdfshuffler gimp google-chrome-stable netflix-desktop whois oracle-java8-installer docker.io'
-  # standing by: powertop radiotray filezilla https://code.google.com/p/gitinspector/downloads/list
-  # TODO: http://download.skype.com/linux/skype-ubuntu-precise_4.3.0.37-1_i386.deb
-  # TODO: http://remarkableapp.net/files/remarkable_1.25_all.deb
-
   # Dependencies for Netflix
-  sudo apt-get --purge --reinstall --yes --force-yes install ttf-mscorefonts-installer
+  install_netflix_dependencies
 
   echo "Do not forget to:"
   echo " - Setup into Startup Applications the brightness of the display (/usr/bin/xbacklight -set 70)"
@@ -204,6 +167,10 @@ rvm_step() {
   cd ~/.vim/
   chmod +x update_bundles
   ./update_bundles
+}
+
+ssd_step() {
+  source $scriptPath/ssd-optimization.sh all
 }
 
 virtualbox_step() {

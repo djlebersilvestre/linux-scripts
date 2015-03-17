@@ -29,6 +29,6 @@ dkr_setup() {
   fi
 
   sudo service docker.io restart
-  newgrp docker
   echo "Please log out and log in so the changes can be applied."
+  newgrp docker
 }

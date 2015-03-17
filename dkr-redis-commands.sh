@@ -5,29 +5,29 @@ DKR_REDIS_CONTAINER=redis
 REDIS_HOST=127.0.0.1
 REDIS_PORT=6379
 
-redis-setup() {
+redis_setup() {
   docker run --name $DKR_REDIS_CONTAINER -d -p $REDIS_HOST:$REDIS_PORT:$REDIS_PORT $DKR_REDIS_IMAGE
 }
 
-redis-start() {
-  redis-stop
+redis_start() {
+  redis_stop
   docker start $DKR_REDIS_CONTAINER
 }
 
-redis-restart() {
-  redis-start
+redis_restart() {
+  redis_start
 }
 
-redis-stop() {
+redis_stop() {
   docker stop $DKR_REDIS_CONTAINER
 }
 
-redis-cli() {
+redis_cli() {
   docker run -it --link $DKR_REDIS_CONTAINER:$DKR_REDIS_CONTAINER --rm $DKR_REDIS_IMAGE sh -c 'exec redis-cli -h "$REDIS_PORT_6379_TCP_ADDR" -p "$REDIS_PORT_6379_TCP_PORT"'
 }
 
-alias redis-setup=redis-setup
-alias redis-start=redis-start
-alias redis-stop=redis-stop
-alias redis-restart=redis-restart
-alias redis-cli=redis-cli
+alias redis-setup=redis_setup
+alias redis-start=redis_start
+alias redis-stop=redis_stop
+alias redis-restart=redis_restart
+alias redis-cli=redis_cli

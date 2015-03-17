@@ -14,11 +14,18 @@ dkr_install() {
 }
 
 dkr_setup() {
-  sudo groupadd docker || true
-  sudo gpasswd -a ${USER} docker || true
-  newgrp docker
+  if groups | grep -q docker; then
+    echo 'Group docker already exists. Skipping.'
+  else
+    sudo groupadd docker || true
+  fi
 
-  echo "Restarting docker service"
+  if groups ${USER} | grep -q docker; then
+    echo '${USER} already associated to docker group. Skipping.'
+  else
+    sudo gpasswd -a ${USER} docker || true
+  fi
+
   sudo service docker.io restart
-  echo "Please log out and log in so the changes can be applied."
+  echo 'Please log out and log in so the changes can be applied.'
 }

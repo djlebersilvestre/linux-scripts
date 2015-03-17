@@ -15,20 +15,20 @@ dkr_install() {
 
 dkr_setup() {
   if groups | grep -q docker; then
-    echo 'Group docker already exists. Skipping.'
+    echo "Group docker already exists. Skipping."
   else
     sudo groupadd docker
-    echo 'Group docker created.'
+    echo "Group docker created."
   fi
 
   if groups ${USER} | grep -q docker; then
-    echo '${USER} already associated to docker group. Skipping.'
+    echo "${USER} already associated to docker group. Skipping."
   else
     sudo gpasswd -a ${USER} docker
-    echo '${USER} associated to docker group.'
+    echo "${USER} associated to docker group."
   fi
 
   sudo service docker.io restart
   newgrp docker
-  echo 'Please log out and log in so the changes can be applied.'
+  echo "Please log out and log in so the changes can be applied."
 }

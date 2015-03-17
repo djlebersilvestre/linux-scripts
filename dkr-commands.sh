@@ -14,8 +14,8 @@ dkr_install() {
 }
 
 dkr_setup() {
-  sudo groupadd docker
-  sudo gpasswd -a ${USER} docker
+  sudo groupadd docker || true
+  sudo gpasswd -a ${USER} docker || true
   newgrp docker
   sudo service docker.io restart
   echo "Please log out and log in so the changes can be applied."

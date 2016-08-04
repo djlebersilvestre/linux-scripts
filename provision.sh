@@ -8,21 +8,6 @@ if ! type -t update_pkgs | grep -i function > /dev/null; then
   source $scriptPath/pkg-helper.sh
 fi
 
-is_copy_working() {
-  if [ ! -d "$HOME/Copy" ] || [ ! -d "$HOME/Copy/ssh" ] || [ ! -d "$HOME/Copy/ssh/vpn" ]; then
-    return 1
-  else
-    return 0
-  fi
-}
-
-check_copy() {
-  if ! is_copy_working; then
-    echo "The Copy (cloud storage) is not configured or initialized. Aborting the process"
-    exit 1
-  fi
-}
-
 first_step() {
   if [ "$PROV_FIRST_ROOT_PASS" = true ]; then
     echo "The root password has already been set"
@@ -53,6 +38,13 @@ first_step() {
   fi
 }
 
+ssh_step() {
+  echo "Configuring ssh keys at home directory"
+  chmod 600 ~/.ssh/vpn/*
+  chmod 600 ~/.ssh/*
+  chmod 700 ~/.ssh/vpn/
+}
+
 git_step() {
   echo "Updating and installing git"
   install_pkgs 'git meld gitk'
@@ -81,86 +73,44 @@ git_step() {
   ln -s ~/.vim/vimrc ~/.vimrc
 }
 
-ssh_step() {
-  check_copy
-
-  echo "Copying ssh keys and configuring at home directory"
-  mkdir -p ~/.ssh
-  cp -R ~/Copy/ssh/* ~/.ssh
-  chmod 600 ~/.ssh/vpn/*
-  chmod 600 ~/.ssh/*
-  chmod 700 ~/.ssh/vpn/
-}
-
 packages_step() {
   should_update_pkgs=false
-
-  source $scriptPath/netflix-desktop.sh
-  add_repo_netflix_desktop
 
   source $scriptPath/google-chrome.sh
   add_repo_google_chrome
 
-  source $scriptPath/oracle-java.sh
-  add_repo_oracle_java
+  #source $scriptPath/oracle-java.sh
+  #add_repo_oracle_java
 
-  source $scriptPath/samsung-tools.sh
-  add_repo_samsung_tools
+  #source $scriptPath/samsung-tools.sh
+  #add_repo_samsung_tools
 
   if $should_update_pkgs; then
     update_pkgs -f
   fi
 
   echo "Updating and installing all desired packages"
-  install_pkgs 'vim apache2-utils xbacklight curl screen htop pdfshuffler gimp google-chrome-stable netflix-desktop whois oracle-java8-installer docker.io samsung-tools powertop'
+  install_pkgs 'vim apache2-utils xbacklight curl screen htop pdfshuffler gimp google-chrome-stable whois powertop'
 
   # standing by: radiotray filezilla https://code.google.com/p/gitinspector/downloads/list
   # TODO: http://download.skype.com/linux/skype-ubuntu-precise_4.3.0.37-1_i386.deb
   # TODO: http://remarkableapp.net/files/remarkable_1.25_all.deb
   # TODO: create a custom script also download and install popcorntime
-  if [ -e "/lib/x86_64-linux-gnu/libudev.so.0" ]; then
-    echo "Lib already linked, bypassing PopcornTime fix"
-  else
-    echo "Applying PopcornTime fix"
-    sudo ln -s /lib/x86_64-linux-gnu/libudev.so.1 /lib/x86_64-linux-gnu/libudev.so.0
-  fi
-
-  # Dependencies for Netflix
-  install_netflix_dependencies
 
   echo "Do not forget to:"
   echo " - Setup into Startup Applications the brightness of the display (/usr/bin/xbacklight -set 70)"
-  echo " - Run Netflix for the first time to setup account and password"
-  echo " - Add apps into the launcher: Chrome, Netflix"
-}
-
-copy_step() {
-  if ! is_copy_working; then
-    echo "Installing Copy (cloud storage)"
-
-    cd ~
-    rm -f ~/Copy.tg*
-    wget https://copy.com/install/linux/Copy.tgz
-
-    tar xvzf Copy.tgz
-    mv ~/copy/ ~/.copy
-
-    .copy/x86_64/CopyAgent
-    rm ~/Copy.tgz
-  else
-    echo "Copy is already installed"
-  fi
+  echo " - Add apps into the launcher: Chrome for instance"
 }
 
 rvm_step() {
   echo "Installing rvm"
-  gpg --keyserver hkp://keys.gnupg.net --recv-keys D39DC0E3
+  gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3
   \curl -sSL https://get.rvm.io | bash -s stable
   rm -f ~/.profile
   source ~/.bash_profile
   type rvm | head -n 1
-  rvm install 2.2.1
-  rvm use 2.2.1 --default
+  rvm install 2.3.1
+  rvm use 2.3.1 --default
 
   #TODO: check if it is already updated
   echo "Installing vim plugins"
@@ -228,9 +178,6 @@ case "$1" in
   packages)
     packages_step
     ;;
-  copy)
-    copy_step
-    ;;
   ssh)
     ssh_step
     ;;
@@ -247,18 +194,16 @@ case "$1" in
     vagrant_step
     ;;
   setup)
-    STEPS_NUM=6
+    STEPS_NUM=5
     echo "Step 1 / $STEPS_NUM"
     first_step
     echo "Step 2 / $STEPS_NUM"
-    git_step
-    echo "Step 3 / $STEPS_NUM"
-    packages_step
-    echo "Step 4 / $STEPS_NUM"
-    copy_step
-    echo "Step 5 / $STEPS_NUM"
     ssh_step
-    echo "Step 6 / $STEPS_NUM"
+    echo "Step 3 / $STEPS_NUM"
+    git_step
+    echo "Step 4 / $STEPS_NUM"
+    packages_step
+    echo "Step 5 / $STEPS_NUM"
     rvm_step
     #virtualbox_step
     #vagrant_step
@@ -286,4 +231,3 @@ esac
 #TODO: use set -e to control the flow on errors (similar to SSD)
 
 exit $RETVAL
-

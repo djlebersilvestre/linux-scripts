@@ -6,7 +6,7 @@ add_repo_google_chrome() {
   else
     echo "Adding repository to install Google Chrome"
     wget -q https://dl-ssl.google.com/linux/linux_signing_key.pub -O- | sudo apt-key add -
-    sudo bash -c "echo deb http://dl.google.com/linux/chrome/deb/ stable main >> /etc/apt/sources.list.d/google.list"
+    sudo bash -c "echo deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main >> /etc/apt/sources.list.d/google-chrome.list"
     should_update_pkgs=true
   fi
 }

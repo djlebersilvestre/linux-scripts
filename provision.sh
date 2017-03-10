@@ -90,7 +90,7 @@ packages_step() {
   fi
 
   echo "Updating and installing all desired packages"
-  install_pkgs 'vim apache2-utils xbacklight curl screen htop pdfshuffler gimp google-chrome-stable whois powertop'
+  install_pkgs 'vim apache2-utils xbacklight curl screen htop pdfshuffler gimp google-chrome-stable whois powertop python-gpgme'
 
   # standing by: radiotray filezilla https://code.google.com/p/gitinspector/downloads/list
   # TODO: http://download.skype.com/linux/skype-ubuntu-precise_4.3.0.37-1_i386.deb
@@ -100,6 +100,10 @@ packages_step() {
   echo "Do not forget to:"
   echo " - Setup into Startup Applications the brightness of the display (/usr/bin/xbacklight -set 70)"
   echo " - Add apps into the launcher: Chrome for instance"
+}
+
+dropbox_step() {
+  # TODO: https://www.dropbox.com/install
 }
 
 rvm_step() {
